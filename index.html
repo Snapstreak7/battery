@@ -3,309 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#F2F2F7">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <title>ColorMyBattery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #F2F2F7;
-            color: #000000;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        /* ── Fake Dynamic Island & Status Bar ── */
-        .status-bar {
-            height: 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            font-weight: 600;
-            font-size: 14px;
-            position: relative;
-            z-index: 50;
-        }
-        .dynamic-island {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: 8px;
-            width: 105px; /* صغرناها باش ما تغطيش الريزو */
-            height: 30px;
-            background-color: #000;
-            border-radius: 20px;
-            z-index: 1;
-        }
-
-        /* ── iOS Toggle Switch ── */
-        .ios-toggle {
-            position: relative;
-            width: 50px;
-            height: 30px;
-            appearance: none;
-            background: #e9e9ea;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            outline: none;
-        }
-        .ios-toggle::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 26px;
-            height: 26px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
+        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background-color: #F2F2F7; color: #000000; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        /* ── Header & Status Bar ── */
+        .status-bar { height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: 600; font-size: 14px; position: relative; z-index: 50; transition: color 0.3s ease; }
+        .dynamic-island { position: absolute; left: 50%; transform: translateX(-50%); top: 8px; width: 105px; height: 30px; background-color: #000; z-index: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        /* ── iOS Toggle ── */
+        .ios-toggle { position: relative; width: 50px; height: 30px; appearance: none; background: #e9e9ea; border-radius: 30px; transition: all 0.3s ease; cursor: pointer; outline: none; }
+        .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; background: #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: all 0.3s ease; }
         .ios-toggle:checked { background: #34C759; }
         .ios-toggle:checked::after { transform: translateX(20px); }
-
-        /* ── iOS Card Styling ── */
-        .ios-card {
-            background-color: #FFFFFF;
-            border-radius: 10px;
-            margin: 0 16px;
-        }
-
-        /* ── Color Circles (صغار ومجموعين فالشاشة) ── */
-        .color-row {
-            display: flex;
-            justify-content: space-between; /* باش يتوزعو مقادين */
-            align-items: center;
-            padding: 4px 16px 16px 16px;
-        }
+        .ios-card { background-color: #FFFFFF; border-radius: 10px; margin: 0 16px; }
         
-        .color-circle {
-            width: 26px; /* صغرناهم باش يجيو كاملين */
-            height: 26px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.1s;
-        }
+        /* ── Color Circles ── */
+        .color-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 16px 16px; }
+        .color-circle { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; position: relative; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
         .color-circle:active { transform: scale(0.9); }
+        .color-circle.selected::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid #8E8E93; border-radius: 50%; }
         
-        .color-circle.selected::after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            border: 2px solid #8E8E93;
-            border-radius: 50%;
-        }
-
-        /* ── Specific Colors ── */
-        .c-red { background-color: #FF3B30; }
-        .c-orange { background-color: #FF9500; }
-        .c-yellow { background-color: #FFCC00; }
-        .c-green { background-color: #34C759; }
-        .c-blue { background-color: #007AFF; }
-        .c-indigo { background-color: #5856D6; }
-        .c-pink { background-color: #FF2D55; }
+        /* Presets */
+        .c-red { background-color: #FF3B30; } 
+        .c-orange { background-color: #FF9500; } 
+        .c-yellow { background-color: #FFCC00; } 
+        .c-green { background-color: #34C759; } 
+        .c-blue { background-color: #007AFF; } 
         .c-purple { background-color: #AF52DE; }
         
+        /* Color Wheel */
+        .c-rainbow { background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); overflow: hidden; }
+        .c-rainbow input[type="color"] { opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; padding: 0; }
+
+        /* ── Shapes Grid & CSS Art ── */
+        .shape-btn { transition: all 0.2s ease; border: 2px solid transparent; }
+        .shape-btn:active { transform: scale(0.95); }
+        .shape-btn.selected { border-color: #007AFF; background-color: #F0F8FF; }
+        .shape-preview { background-color: #000; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* 1. Pill */
+        .shape-pill { border-radius: 20px !important; clip-path: none !important; -webkit-mask-image: none !important; }
+        /* 2. Apple Logo */
+        .shape-apple { border-radius: 0 !important; clip-path: none !important; -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.79 3.59-.76 1.8.06 3.08.81 3.92 2.05-1.64 1-1.92 3.14-.38 4.19-.39 1.19-.94 2.45-1.6 3.25l-.61.44zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.41-2.08 4.29-3.74 4.25z'/%3E%3C/svg%3E") !important; -webkit-mask-size: contain !important; -webkit-mask-repeat: no-repeat !important; -webkit-mask-position: center !important; }
+        /* 3. Batman */
+        .shape-batman { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 15%, 55% 15%, 60% 0%, 65% 15%, 85% 10%, 100% 40%, 80% 60%, 100% 80%, 75% 80%, 55% 100%, 50% 80%, 45% 100%, 25% 80%, 0% 80%, 20% 60%, 0% 40%, 15% 10%, 35% 15%, 40% 0%, 45% 15%) !important; }
+        /* 4. Heart */
+        .shape-heart { border-radius: 0 !important; clip-path: none !important; -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") !important; -webkit-mask-size: contain !important; -webkit-mask-repeat: no-repeat !important; -webkit-mask-position: center !important; }
+        /* 5. Cat Ears */
+        .shape-cat { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(10% 25%, 15% 0, 25% 25%, 75% 25%, 85% 0, 90% 25%, 100% 50%, 90% 100%, 10% 100%, 0 50%) !important; }
+        /* 6. Bowtie / Ribbon */
+        .shape-bow { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(0 0, 100% 0, 80% 50%, 100% 100%, 0 100%, 20% 50%) !important; }
+        /* 7. Sparkle */
+        .shape-sparkle { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%) !important; }
+        /* 8. Shield */
+        .shape-shield { border-radius: 0 !important; -webkit-mask-image: none !important; clip-path: polygon(50% 0%, 100% 10%, 100% 70%, 50% 100%, 0 70%, 0 10%) !important; }
     </style>
 </head>
 <body>
 
-    <div class="status-bar pt-2">
+    <div class="status-bar pt-2" id="statusBarText">
         <span id="clock" class="tracking-tight ml-2 z-10">7:44</span>
+        <div class="dynamic-island shape-pill" id="dynamicIsland" style="width: 105px; height: 30px;"></div>
         
-        <div class="dynamic-island"></div>
-        
-        <div class="flex items-center gap-[4px] text-black opacity-90 z-10">
-            
-            <svg width="17" height="11" viewBox="0 0 18 12" fill="currentColor">
-                <rect x="1" y="8" width="3" height="4" rx="1"/>
-                <rect x="6" y="5" width="3" height="7" rx="1"/>
-                <rect x="11" y="2" width="3" height="10" rx="1"/>
-                <rect x="16" y="0" width="3" height="12" rx="1"/>
-            </svg>
-
-            <svg width="16" height="11" viewBox="0 0 16 12" fill="currentColor">
-                <path d="M8 12C8.82843 12 9.5 11.3284 9.5 10.5C9.5 9.67157 8.82843 9 8 9C7.17157 9 6.5 9.67157 6.5 10.5C6.5 11.3284 7.17157 12 8 12Z"/>
-                <path d="M12.0208 7.37868C10.958 6.31587 9.5391 5.75 8 5.75C6.4609 5.75 5.04203 6.31587 3.97918 7.37868C3.68629 7.67157 3.21142 7.67157 2.91853 7.37868C2.62564 7.08579 2.62564 6.61092 2.91853 6.31802C4.26941 4.96714 6.05922 4.25 8 4.25C9.94078 4.25 11.7306 4.96714 13.0815 6.31802C13.3744 6.61092 13.3744 7.08579 13.0815 7.37868C12.7886 7.67157 12.3137 7.67157 12.0208 7.37868Z"/>
-                <path d="M15.5563 3.84315C13.6277 1.91448 10.9061 0.85 8 0.85C5.09395 0.85 2.37233 1.91448 0.44365 3.84315C0.150757 4.13604 0.150757 4.61091 0.44365 4.90381C0.736543 5.1967 1.21142 5.1967 1.50431 4.90381C3.15655 3.25157 5.4859 2.35 8 2.35C10.5141 2.35 12.8434 3.25157 14.4957 4.90381C14.7886 5.1967 15.2635 5.1967 15.5563 4.90381C15.8492 4.61091 15.8492 4.13604 15.5563 3.84315Z"/>
-            </svg>
-
+        <div class="flex items-center gap-[4px] z-10" id="statusIcons">
+            <svg width="17" height="11" viewBox="0 0 18 12" fill="currentColor"><rect x="1" y="8" width="3" height="4" rx="1"/><rect x="6" y="5" width="3" height="7" rx="1"/><rect x="11" y="2" width="3" height="10" rx="1"/><rect x="16" y="0" width="3" height="12" rx="1"/></svg>
             <div class="flex items-center ml-1">
-                <div id="batteryFill" style="width: 33px; height: 17px; background-color: #555555; border-radius: 7px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s;">
-                    <span style="color: white; font-size: 11.5px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; margin-top: 1px;">88</span>
-                </div>
-                <div id="batteryNub" style="width: 2.5px; height: 6px; background-color: #555555; opacity: 0.6; border-top-right-radius: 2px; border-bottom-right-radius: 2px; margin-left: 1px; transition: background-color 0.3s;"></div>
+                <div id="batteryFill" style="width: 33px; height: 17px; background-color: #555555; border-radius: 7px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s;"><span style="color: white; font-size: 11.5px; font-weight: 700; margin-top: 1px;">88</span></div>
+                <div id="batteryNub" style="width: 2.5px; height: 6px; background-color: #555555; border-top-right-radius: 2px; border-bottom-right-radius: 2px; margin-left: 1px; transition: background-color 0.3s;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center px-2 py-2 relative mt-2">
+        <button class="flex items-center text-[#007AFF]"><i class="ri-arrow-left-s-line text-4xl"></i></button>
+        <h1 class="absolute left-1/2 transform -translate-x-1/2 font-semibold text-[17px]">ColorMyBattery</h1>
+    </div>
+
+    <div class="ios-card mt-3 p-3 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3"><i class="ri-apple-fill text-2xl"></i> <span class="font-medium text-[16px]">Enable Customization</span></div>
+        <input type="checkbox" id="mainToggle" class="ios-toggle">
+    </div>
+
+    <div class="px-8 mt-3 mb-6 text-[#8E8E93] text-[12px] leading-relaxed">
+        <p>Unlock premium system UI tweaks. Customize colors and select your preferred Dynamic Island style below.</p>
+    </div>
+
+    <div class="mt-4">
+        <h3 class="text-[#8E8E93] text-[12px] font-bold mb-2 px-6 uppercase tracking-wider">Battery Fill Color</h3>
+        <div class="color-row" id="rowBattery">
+            <div class="color-circle preset c-red"></div>
+            <div class="color-circle preset c-orange"></div>
+            <div class="color-circle preset c-yellow"></div>
+            <div class="color-circle preset c-green selected"></div>
+            <div class="color-circle preset c-blue"></div>
+            <div class="color-circle preset c-purple"></div>
+            <label class="color-circle c-rainbow"><input type="color" id="pickerBattery"></label>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <h3 class="text-[#8E8E93] text-[12px] font-bold mb-2 px-6 uppercase tracking-wider">Dynamic Island Color</h3>
+        <div class="color-row" id="rowIsland">
+            <div class="color-circle preset c-red"></div>
+            <div class="color-circle preset c-orange"></div>
+            <div class="color-circle preset c-yellow"></div>
+            <div class="color-circle preset c-green"></div>
+            <div class="color-circle preset c-blue"></div>
+            <div class="color-circle preset c-purple"></div>
+            <label class="color-circle c-rainbow"><input type="color" id="pickerIsland"></label>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <h3 class="text-[#8E8E93] text-[12px] font-bold mb-2 px-6 uppercase tracking-wider">Status Bar Icons</h3>
+        <div class="color-row" id="rowStatus">
+            <div class="color-circle preset c-red"></div>
+            <div class="color-circle preset c-orange"></div>
+            <div class="color-circle preset c-yellow"></div>
+            <div class="color-circle preset c-green"></div>
+            <div class="color-circle preset c-blue selected"></div>
+            <div class="color-circle preset c-purple"></div>
+            <label class="color-circle c-rainbow"><input type="color" id="pickerStatus"></label>
+        </div>
+    </div>
+
+    <div class="mt-6 pb-12">
+        <h3 class="text-[#8E8E93] text-[12px] font-bold mb-3 px-6 uppercase tracking-wider">Dynamic Island Styles</h3>
+        
+        <div class="grid grid-cols-4 gap-3 px-4">
+            
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn selected" data-shape="shape-pill" data-w="105px" data-h="30px">
+                <div class="shape-preview shape-pill" style="width: 45px; height: 14px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-apple" data-w="32px" data-h="38px">
+                <div class="shape-preview shape-apple" style="width: 25px; height: 30px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-batman" data-w="120px" data-h="40px">
+                <div class="shape-preview shape-batman" style="width: 50px; height: 18px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-heart" data-w="35px" data-h="35px">
+                <div class="shape-preview shape-heart" style="width: 28px; height: 28px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-cat" data-w="100px" data-h="32px">
+                <div class="shape-preview shape-cat" style="width: 45px; height: 15px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-bow" data-w="80px" data-h="25px">
+                <div class="shape-preview shape-bow" style="width: 40px; height: 15px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-sparkle" data-w="35px" data-h="35px">
+                <div class="shape-preview shape-sparkle" style="width: 25px; height: 25px;"></div>
+            </div>
+
+            <div class="bg-white rounded-xl h-[70px] flex justify-center items-center shadow-sm cursor-pointer shape-btn" data-shape="shape-shield" data-w="35px" data-h="42px">
+                <div class="shape-preview shape-shield" style="width: 25px; height: 30px;"></div>
             </div>
 
         </div>
     </div>
 
-    <div class="flex items-center px-2 py-2 relative mt-2">
-        <button class="flex items-center text-[#007AFF] hover:opacity-70">
-            <i class="ri-arrow-left-s-line text-4xl"></i>
-        </button>
-        <h1 class="absolute left-1/2 transform -translate-x-1/2 font-semibold text-[17px] tracking-wide">ColorMyBattery</h1>
-    </div>
-
-    <div class="ios-card mt-3 p-3 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-3">
-            <i class="ri-apple-fill text-2xl"></i>
-            <span class="font-medium text-[16px]">Battery Color Customization</span>
-        </div>
-        <input type="checkbox" id="mainToggle" class="ios-toggle">
-    </div>
-
-    <div class="px-8 mt-3 mb-8">
-        <p class="text-[#8E8E93] text-[12px] leading-snug">You can customize the color of your iphone's battery.</p>
-        <p class="text-[#8E8E93] text-[12px] leading-snug">You can set various colors for various battery levels.</p>
-    </div>
-
-    <div class="mt-6">
-        <h3 class="text-[#8E8E93] font-medium text-[13px] mb-2 px-6 uppercase tracking-wide">Battery 20-50% Color</h3>
-        <div class="color-row" id="row1">
-            <div class="color-circle c-red"></div>
-            <div class="color-circle c-orange selected"></div>
-            <div class="color-circle c-yellow"></div>
-            <div class="color-circle c-green"></div>
-            <div class="color-circle c-blue"></div>
-            <div class="color-circle c-indigo"></div>
-            <div class="color-circle c-pink"></div>
-            <div class="color-circle c-purple"></div>
-        </div>
-    </div>
-
-    <div class="mt-2">
-        <h3 class="text-[#8E8E93] font-medium text-[13px] mb-2 px-6 uppercase tracking-wide">Battery 50-80% Color</h3>
-        <div class="color-row" id="row2">
-            <div class="color-circle c-red"></div>
-            <div class="color-circle c-orange"></div>
-            <div class="color-circle c-yellow selected"></div>
-            <div class="color-circle c-green"></div>
-            <div class="color-circle c-blue"></div>
-            <div class="color-circle c-indigo"></div>
-            <div class="color-circle c-pink"></div>
-            <div class="color-circle c-purple"></div>
-        </div>
-    </div>
-
-    <div class="mt-2">
-        <h3 class="text-[#8E8E93] font-medium text-[13px] mb-2 px-6 uppercase tracking-wide">Battery 80-100% Color</h3>
-        <div class="color-row" id="row3">
-            <div class="color-circle c-red"></div>
-            <div class="color-circle c-orange"></div>
-            <div class="color-circle c-yellow"></div>
-            <div class="color-circle c-green"></div>
-            <div class="color-circle c-blue selected"></div>
-            <div class="color-circle c-indigo"></div>
-            <div class="color-circle c-pink"></div>
-            <div class="color-circle c-purple"></div>
-        </div>
-    </div>
-
-    <div class="mt-2 pb-10">
-        <h3 class="text-[#8E8E93] font-medium text-[13px] mb-2 px-6 uppercase tracking-wide">Battery Charging Color</h3>
-        <div class="color-row" id="row4">
-            <div class="color-circle c-red"></div>
-            <div class="color-circle c-orange"></div>
-            <div class="color-circle c-yellow"></div>
-            <div class="color-circle c-green selected"></div>
-            <div class="color-circle c-blue"></div>
-            <div class="color-circle c-indigo"></div>
-            <div class="color-circle c-pink"></div>
-            <div class="color-circle c-purple"></div>
-        </div>
-    </div>
-
     <script>
-        // ── Real-time Clock ──
-        function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            hours = hours < 10 ? '0' + hours : hours;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            document.getElementById('clock').textContent = hours + ':' + minutes;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // ── Color Map (Hex Codes) ──
-        const colorMap = {
-            'c-red': '#FF3B30',
-            'c-orange': '#FF9500',
-            'c-yellow': '#FFCC00',
-            'c-green': '#34C759',
-            'c-blue': '#007AFF',
-            'c-indigo': '#5856D6',
-            'c-pink': '#FF2D55',
-            'c-purple': '#AF52DE'
-        };
-
-        const batteryFill = document.getElementById('batteryFill');
-        const batteryNub = document.getElementById('batteryNub');
-        const mainToggle = document.getElementById('mainToggle');
+        const colorMap = { 'c-red': '#FF3B30', 'c-orange': '#FF9500', 'c-yellow': '#FFCC00', 'c-green': '#34C759', 'c-blue': '#007AFF', 'c-purple': '#AF52DE' };
         
         let isCustomizationOn = false;
+        const mainToggle = document.getElementById('mainToggle');
+        
+        // Target Elements
+        const batteryFill = document.getElementById('batteryFill');
+        const batteryNub = document.getElementById('batteryNub');
+        const dynamicIsland = document.getElementById('dynamicIsland');
+        const statusBarText = document.getElementById('statusBarText');
+        const shapePreviews = document.querySelectorAll('.shape-preview');
 
-        // ── Toggle Logic ──
-        mainToggle.addEventListener('change', function(e) {
-            isCustomizationOn = e.target.checked;
-            updateBatteryColor();
+        // State memory
+        let currentBatteryColor = colorMap['c-green'];
+        let currentIslandColor = '#000000'; 
+        let currentStatusColor = '#007AFF'; 
+
+        mainToggle.addEventListener('change', (e) => { 
+            isCustomizationOn = e.target.checked; 
+            applyColors(); 
         });
 
-        function updateBatteryColor() {
+        function applyColors() {
             if (isCustomizationOn) {
-                // Find currently selected color from row 3 (80-100%) or whichever you want to apply
-                const activeCircle = document.querySelector('#row3 .color-circle.selected') || document.querySelector('.color-circle.selected');
-                const colorClass = Array.from(activeCircle.classList).find(cls => cls.startsWith('c-'));
-                
-                if(colorClass && colorMap[colorClass]) {
-                    batteryFill.style.backgroundColor = colorMap[colorClass];
-                    batteryNub.style.backgroundColor = colorMap[colorClass];
-                }
+                batteryFill.style.backgroundColor = currentBatteryColor;
+                batteryNub.style.backgroundColor = currentBatteryColor;
+                dynamicIsland.style.backgroundColor = currentIslandColor;
+                statusBarText.style.color = currentStatusColor;
+                shapePreviews.forEach(p => p.style.backgroundColor = currentIslandColor);
             } else {
-                // Revert to Dark Gray when OFF
                 batteryFill.style.backgroundColor = '#555555';
                 batteryNub.style.backgroundColor = '#555555';
+                dynamicIsland.style.backgroundColor = '#000000';
+                statusBarText.style.color = 'currentColor'; 
+                shapePreviews.forEach(p => p.style.backgroundColor = '#000000');
             }
         }
 
-        // ── Color Selection Logic ──
-        function setupColorRow(rowId) {
+        function setupColorRow(rowId, updateVariableCallback) {
             const row = document.getElementById(rowId);
-            const circles = row.querySelectorAll('.color-circle');
-            
-            circles.forEach(circle => {
-                circle.addEventListener('click', function() {
-                    circles.forEach(c => c.classList.remove('selected'));
-                    this.classList.add('selected');
+            const presets = row.querySelectorAll('.preset');
+            const pickerLabel = row.querySelector('.c-rainbow');
+            const colorPicker = row.querySelector('input[type="color"]');
 
-                    // Update battery color dynamically ONLY if Customization is ON
-                    if (isCustomizationOn) {
-                        updateBatteryColor();
-                    }
+            presets.forEach(circle => {
+                circle.addEventListener('click', function() {
+                    presets.forEach(c => c.classList.remove('selected'));
+                    pickerLabel.classList.remove('selected');
+                    this.classList.add('selected');
+                    const colorClass = Array.from(this.classList).find(cls => cls.startsWith('c-'));
+                    updateVariableCallback(colorMap[colorClass]);
                 });
+            });
+
+            colorPicker.addEventListener('input', function(e) {
+                presets.forEach(c => c.classList.remove('selected'));
+                pickerLabel.classList.add('selected');
+                updateVariableCallback(e.target.value);
             });
         }
 
-        setupColorRow('row1');
-        setupColorRow('row2');
-        setupColorRow('row3');
-        setupColorRow('row4');
+        setupColorRow('rowBattery', (color) => { currentBatteryColor = color; applyColors(); });
+        setupColorRow('rowIsland', (color) => { currentIslandColor = color; applyColors(); });
+        setupColorRow('rowStatus', (color) => { currentStatusColor = color; applyColors(); });
+
+        // 🔥 Dynamic Island Shapes Logic 🔥
+        const shapeBtns = document.querySelectorAll('.shape-btn');
+        const allShapeClasses = ['shape-pill', 'shape-apple', 'shape-batman', 'shape-heart', 'shape-cat', 'shape-bow', 'shape-sparkle', 'shape-shield'];
+        
+        shapeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                shapeBtns.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                const targetShape = this.getAttribute('data-shape');
+                const w = this.getAttribute('data-w');
+                const h = this.getAttribute('data-h');
+                
+                dynamicIsland.classList.remove(...allShapeClasses);
+                dynamicIsland.classList.add(targetShape);
+                dynamicIsland.style.width = w;
+                dynamicIsland.style.height = h;
+            });
+        });
+
+        function updateClock() { 
+            const now = new Date(); 
+            document.getElementById('clock').textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0'); 
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
     </script>
 </body>
 </html>
